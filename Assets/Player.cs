@@ -7,23 +7,31 @@ public class Player : MonoBehaviour
 {
     private bool isGrounded;
     private Rigidbody rigidBody;
-    public float m_Speed = 5f;
-    private bool jumpingPressed;
     private readonly float j_Speed = 155.0f;
+
+    private BallSpawner ballspawner;
+
+    [SerializeField]
+    public Wings Wings;
+    public float m_Speed = 5f;
+
+    // INPUT
+    private bool jumpingPressed;
+    private bool shootingPressed;
 
     // Start is called before the first frame update
     void Start()
     {
         //_rigidBody = GetComponent<Rigidbody>();
         rigidBody = gameObject.GetComponent<Rigidbody>();
-
-}
+    }
 
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = true;
+            Wings.FlyingWings = false;
         }
     }
 
@@ -32,6 +40,7 @@ public class Player : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = false;
+            Wings.FlyingWings = true;
         }
     }
 
@@ -45,6 +54,18 @@ public class Player : MonoBehaviour
         {
             jumpingPressed = false;
         }
+
+        if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift))
+        {
+            shootingPressed = true;
+            ballspawner = GetComponentInChildren<BallSpawner>();
+
+            ballspawner.SpawnBall();
+        }
+        else
+        {
+            shootingPressed = false;
+        }
     }
 
     void FixedUpdate()
@@ -55,7 +76,7 @@ public class Player : MonoBehaviour
         //Apply the movement vector to the current position, which is
         //multiplied by deltaTime and speed for a smooth MovePosition
         rigidBody.MovePosition(transform.position + m_Input * Time.deltaTime * m_Speed);
-        if (jumpingPressed && isGrounded) { 
+        if (jumpingPressed) { 
         
             rigidBody.AddForce(Vector3.up * j_Speed);
         }
